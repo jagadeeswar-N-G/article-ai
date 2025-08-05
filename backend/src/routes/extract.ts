@@ -1,26 +1,41 @@
-import { Request, Response } from 'express';
+import express from 'express';
+import { extractArticleFromURL } from '../utils/scraper';
 
-export const extractData = async (req: Request, res: Response) => {
-    try {
-        const { url } = req.body;
+const router = express.Router();
 
-        // Validate the input
-        if (!url) {
-            return res.status(400).json({ error: 'URL is required' });
-        }
+/**
+ * @route POST /extract
+ * @desc Accepts a URL, extracts article content
+ * @body { url: string }
+ */
+router.post('/', async (req, res) => {
+  const { url } = req.body;
 
-        // Implement data extraction logic here
-        const extractedData = await someDataExtractionFunction(url);
+  // 1. Validate
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ error: 'URL is required' });
+  }
 
-        return res.status(200).json({ data: extractedData });
-    } catch (error) {
-        console.error('Error extracting data:', error);
-        return res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    // 2. Scrape + extract content
+    const article = await extractArticleFromURL(url);
+
+    // 3. Check if it’s a valid article
+    if (!article || !article.content || article.content.length < 300) {
+      return res.status(400).json({ error: 'Not a valid article URL or content too short' });
     }
-};
 
-// Placeholder for the actual data extraction function
-const someDataExtractionFunction = async (url: string) => {
-    // Logic to extract data from the provided URL
-    return {}; // Return the extracted data
-};
+    // 4. Send structured response
+    return res.status(200).json({
+      title: article.title,
+      author: article.author || '',
+      published: article.published || '',
+      content: article.content,
+    });
+  } catch (err) {
+    console.error('❌ /extract error:', err);
+    return res.status(500).json({ error: 'Something went wrong while extracting article' });
+  }
+});
+
+export default router;
