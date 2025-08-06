@@ -16,8 +16,11 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    console.log(`Received question for article ${articleId}: ${question}`);
     // 1. Embed the question
     const questionEmbedding = await embedQuestion(question);
+
+    console.log(`Generated embedding for question: ${questionEmbedding.length} dimensions`);
 
     // 2. Find top matching chunks
     const matchedChunks = await searchSimilarChunks(questionEmbedding, 5);
@@ -51,7 +54,7 @@ Question: ${question}
 
     const answer = completion.choices[0].message.content?.trim() || 'No answer found';
 
-    res.status(200).json({ answer, context });
+    res.status(200).json({ answer });
   } catch (err) {
     console.error('❌ Error in /ask route:', err);
     res.status(500).json({ error: 'Something went wrong' });

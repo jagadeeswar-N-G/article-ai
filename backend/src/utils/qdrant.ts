@@ -2,6 +2,8 @@
 
 import {QdrantClient} from '@qdrant/js-client-rest';
 import dotenv from 'dotenv';
+import { v4 as uuidv4 } from 'uuid';
+
 
 dotenv.config();
 
@@ -33,9 +35,10 @@ export async function ensureCollection(): Promise<void> {
 /**
  * Store article chunks as points in Qdrant
  */
+
 export async function storeChunks(articleId: string, vectors: number[][], chunks: string[]): Promise<void> {
   const points = vectors.map((vector, i) => ({
-    id: `${articleId}_${i}`,
+    id: uuidv4(), // Generate UUID for each point
     vector,
     payload: {
       articleId,

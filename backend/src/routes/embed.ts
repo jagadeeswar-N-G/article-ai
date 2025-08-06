@@ -29,13 +29,13 @@ router.post('/', async (req, res) => {
     if (!chunks.length) {
       return res.status(400).json({ error: 'Failed to split article into chunks' });
     }
-
+    console.log(`✅ Extracted ${chunks.length} chunks from article`);
     // 3. Generate embeddings
     const vectors = await generateEmbeddings(chunks);
     if (!vectors.length) {
       return res.status(500).json({ error: 'Failed to generate embeddings' });
     }
-
+    console.log(`✅ Generated embeddings for ${vectors.length} chunks`);
     // 4. Store in Qdrant
     await ensureCollection();
     await storeChunks(articleId, vectors, chunks);
