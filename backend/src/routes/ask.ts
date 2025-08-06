@@ -35,7 +35,8 @@ router.post('/', async (req, res) => {
     // 4. Send to OpenAI for answer
     const prompt = `
 Answer the following question based ONLY on the context below.
-If the answer is not in the context, reply "I don’t know".
+if they as anything other than the article, roast them then and tell them to ask about the article.
+
 
 Context:
 ${context}
